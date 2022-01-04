@@ -1,23 +1,31 @@
 package service;
 
+import models.Channel;
 import models.User;
-import repositories.CompositeRepository;
 import repositories.Repository;
 import repositories.RepositoryFactory;
-import repositories.UserRepository;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+
 
 public class UserService {
 
-    private final Repository<User> userRepository = RepositoryFactory.user();
+    private User currentUser;
+    private Channel currentchannel;
+    private static final Repository<User> userRepository = RepositoryFactory.user();
+    private static final Repository<Channel> channelRepository = RepositoryFactory.channel();
+    private ArrayList<Repository<Channel>> channelUserRepository;
+    private ArrayList<Repository<Channel>> MessageRepository;
 
-    public UserService() {
+    public UserService(){
+
     }
 
     public void signUp(String pseudo, String password) throws Exception {
-        User newUser = new User(pseudo, password);
-
-        if(!userRepository.exists(newUser)){
-            userRepository.save(newUser);
+        User newUser = userRepository.find(pseudo);
+        if(newUser==null){
+            userRepository.save(new User(pseudo,password));
             System.out.println(pseudo + " was successfully added !");
         }
         else{
@@ -28,7 +36,7 @@ public class UserService {
     public void connect(String pseudo, String password) throws Exception {
         User user = userRepository.find(pseudo);
         if (user == null) {
-            System.out.println("User is null");
+            System.out.println("There is no user with this pseudo");
             throw new NullPointerException();
         }
         else if(!user.getPassword().equals(password)) {
@@ -37,6 +45,14 @@ public class UserService {
         System.out.println("Hey "+ pseudo + " you've successfully connected to Slack");
     }
 
-//   public void joinChannel()
+    public void createChannel(String name,String pseudo) throws Exception{
+        Channel channel=channelRepository.find(name);
+        if(channel!=null){
+            throw new Exception("Name already exists ! Please try another one.");
+        }
+        channel=new Channel(name,pseudo);
+        channelRepository.save(channel);
 
+    }
 }
+

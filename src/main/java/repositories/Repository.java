@@ -16,5 +16,8 @@ public interface Repository<T extends HasId> {
 
     T find(String id) throws FileNotFoundException;
 
-    boolean exists(T obj) throws FileNotFoundException;
+    //T findById(String id) throws FileNotFoundException;
+
+
+    boolean exists(T obj) ;
 }

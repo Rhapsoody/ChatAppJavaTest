@@ -25,7 +25,7 @@ import java.net.ServerSocket;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ChatController implements Initializable {
+public class ServerController implements Initializable {
 
     @FXML
     private Button send_messageBtn;

@@ -4,27 +4,29 @@ import caches.MemoryCache;
 import models.HasId;
 
 import java.io.FileNotFoundException;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
 public class CompositeRepository<T extends HasId> implements Repository<T> {
 
-    private final Repository<T> memory = new MemoryCache<>();
+    private final MemoryCache memory;
     private final Repository<T> file;
-    private Timer timer = new Timer();
 
     public CompositeRepository(Repository<T> file) {
-        this.file = file;
-        /*timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                for (T obj : memory.findAll()) {
-                    file.delete(obj);
-                    file.save(obj);
-                }
+        this.memory= new MemoryCache<>();
+        try {
+            List<T> r = file.findAll();
+            for (T element : r) {
+                this.memory.save(element);
+                System.out.println("Element ajoute "+ element.getName());
             }
-        }, 10000, 10000);*/
+        }catch(FileNotFoundException fne){
+            fne.printStackTrace();
+        }
+        this.file = file;
     }
 
     @Override
@@ -46,11 +48,11 @@ public class CompositeRepository<T extends HasId> implements Repository<T> {
 
     @Override
     public T find(String id) throws FileNotFoundException {
-        return memory.find(id);
+        return (T)memory.find(id);
     }
 
     @Override
-    public boolean exists(T obj) throws FileNotFoundException {
+    public boolean exists(T obj) {
         return memory.exists(obj);
     }
 
